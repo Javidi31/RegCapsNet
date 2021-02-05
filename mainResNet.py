@@ -57,39 +57,23 @@ all_te_images  = []
 y_train     = []
 y_test     = []
 
-num_classes = 130 
-img_no_perClass = 15    
+num_classes = 55 
+img_no_perClass = 24    
 print('Number of Classes: ', num_classes)
-train_no   = 12   #######
-test_no    = 3  #######
+train_no   = 6   #######
+test_no    = 18  #######
 lb_no = 0
 
-for number1 in range(0, numberOfsamples,img_no_perClass):    
-    print(number1)    
-    for number2 in range(0, train_no):        
-        path2 = path1 + files[number1]
-        img = cv2.imread(path2 , 0)
-        img = img.reshape(img_rows, img_cols, 1)
-        all_tr_images.append(img)    
-        y_train.append(lb_no)
-        number1 = number1+1
-    for number2 in range(0, test_no):
-        path2 = path1 + files[number1]
-        img = cv2.imread(path2 , 0)
-        img = img.reshape(img_rows, img_cols, 1)
-        all_te_images.append(img)    
-        y_test.append(lb_no)
-        number1 = number1+1
-    lb_no = lb_no + 1
 
-X_train = np.array(all_tr_images)
-y_train = np.array(y_train, dtype=np.uint16) 
+
+X_train = loadDataForResNet()
 print(X_train.shape)
 
-X_test = np.array(all_te_images)
-y_test = np.array(y_test, dtype=np.uint16) 
+X_test = loadDataForResNet()
 print(X_test.shape)
 
+y_train = np.array(y_train, dtype=np.uint16) 
+y_test = np.array(y_test, dtype=np.uint16) 
 # Convert class vectors to multi class matrices.
 Y_train = np_utils.to_categorical(y_train, num_classes)
 Y_test  = np_utils.to_categorical(y_test, num_classes)
