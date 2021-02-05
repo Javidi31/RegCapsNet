@@ -6,7 +6,4 @@ Run "CapsNet.py" for the [basic CapsuleNetwork model](https://papers.nips.cc/pap
 
 Run "RegCapsNet.py" for the Regularized version of CapsuleNetwork model.
 
-Run "mainResNet.py" to train ResNet-18 model 
 
-
-Run "ExtractResNetFeatures.py" to extract ResNet features
