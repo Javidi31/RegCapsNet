@@ -3,10 +3,12 @@ This is a [Keras](https://keras.io/) implementation of Regularized CapsNet with 
 To know more about our proposed model, please refer to the [original paper](https://www.sciencedirect.com/science/article/abs/pii/S0031320321000388)
 
 **************************************************************************************************************************************************
-To run "CapsNet.py" for the [basic CapsuleNetwork model](https://papers.nips.cc/paper/6975-dynamic-routing-between-capsules.pdf).
+Run "CapsNet.py" for the [basic CapsuleNetwork model](https://papers.nips.cc/paper/6975-dynamic-routing-between-capsules.pdf).
+
 
 **************************************************************************************************************************************************
-To run "RegCapsNet.py" for the Regularized version of CapsuleNetwork model.
+Run "RegCapsNet.py" for the Regularized version of CapsuleNetwork model.
+
 
 **************************************************************************************************************************************************
 To run our "RegCapsNet Conjugate with ResNet" follow the below steps:
