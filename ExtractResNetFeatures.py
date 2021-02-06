@@ -39,7 +39,7 @@ def f1_m(y_true, y_pred):
 
 """# Load Best Model"""
 #First I load the saved model 
-model = load_model('model-79-0.6706_Cedar_Tr6.h5',custom_objects={"f1_m": f1_m, "precision_m":precision_m,"recall_m":recall_m})#######
+model = load_model('.\\ResNetModels\\model-79-0.6706_Cedar_Tr6.h5',custom_objects={"f1_m": f1_m, "precision_m":precision_m,"recall_m":recall_m})#######
 
 #then use it to visualize
 layer_no = 33  #######     Extracts the outputs of the top 33 layers
