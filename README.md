@@ -1,8 +1,3 @@
-# Cite information
-Mahdi Jampour, Saeid Abbaasi, Malihe Javidi, CapsNet Regularization and its Conjugation with ResNet for Signature Identification, Pattern Recognition, 2021, 107851, https://doi.org/10.1016/j.patcog.2021.107851.
-
-
-
 This is a [Keras](https://keras.io/) implementation of Regularized CapsNet with ResNet.
 To know more about our proposed model, please refer to the [original paper](https://www.sciencedirect.com/science/article/abs/pii/S0031320321000388)
 
@@ -28,3 +23,9 @@ used features of step 2 that saved in folder "ResNetFeatures" as input data.
 **************************************************************************************************************************************************
 
 Good luck
+
+
+
+
+# Cite information
+Mahdi Jampour, Saeid Abbaasi, Malihe Javidi, CapsNet Regularization and its Conjugation with ResNet for Signature Identification, Pattern Recognition, 2021, 107851, https://doi.org/10.1016/j.patcog.2021.107851.
