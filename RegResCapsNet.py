@@ -24,8 +24,47 @@ checkpoint_path, alpha, n_epochs, m_plus, m_minus, lambda_, \
 init_sigma, caps1_n_dims, caps2_n_dims, caps1_n_maps, \
 primary_cap_size1, primary_cap_size2, n_hidden1, n_hidden2 \
     = par.getParamCaps(dsname)
+    
+image_size1 = 25 # For Lay31: 25 , For Lay16: 50
+image_size2 = image_size1
+img_channel = 128 #For Lay31: 128, For Lay16: 64
+img_per_class_train = 10
+img_per_class_test = 14
 
+img_no = class_no*img_per_class_train
+from PIL import Image
+Train = np.zeros( shape=(img_no,image_size1,image_size2,img_channel) )
+  for i in range(0,img_no):
+    path = '/ResNetFeatures/'+dsname+'/'
+    path = path +  str(i)+ 'OutTr10Cedar_lay31.pckl'  
+    
+    with open(path, 'rb') as f:
+      Train[i,:,:,:] = pickle.load(f)
 
+img_no = class_no*img_per_class_test
+Test = np.zeros( shape=(img_no,image_size1,image_size2,img_channel) )
+  for i in range(0,img_no):
+    path = '/ResNetFeatures/'+dsname+'/'
+    path = path + str(i) + 'OutTs14Cedar_lay31.pckl'
+    
+    with open(path, 'rb') as f:
+      Test[i,:,:,:] = pickle.load(f)
+
+Train_label = np.zeros(shape=(class_no*img_per_class_train))
+Test_label = np.zeros(shape=(class_no*img_per_class_test))
+Tr_cnt = 0
+Ts_cnt = 0
+for i in range(total_img):
+  if i%img_per_class < img_per_class_train:  
+    Train_label[Tr_cnt] = i//img_per_class
+    Tr_cnt = Tr_cnt + 1
+  else:
+    Test_label[Ts_cnt] = i//img_per_class
+    Ts_cnt = Ts_cnt + 1
+    
+
+primary_cap_size1 = 10
+primary_cap_size2 = 10 # primary capsules  (FOR Cedar Layer 31)
 caps1_n_caps = caps1_n_maps * primary_cap_size1 * primary_cap_size2  # 1152 primary capsules for mnist
 ksize1 = (image_size1 - (primary_cap_size1) * 2 + 2) / 2
 ksize2 = (image_size2 - (primary_cap_size2) * 2 + 2) / 2
@@ -191,63 +230,15 @@ L = tf.add(T * present_error, lambda_ * (1.0 - T) * absent_error,
 
 margin_loss = tf.reduce_mean(tf.reduce_sum(L, axis=1), name="margin_loss")
 
-"""# Reconstruction
-
-## Mask
-"""
-
-mask_with_labels = tf.placeholder_with_default(False, shape=(),
-                                               name="mask_with_labels")
-
-"""Now let's use `tf.cond()` to define the reconstruction targets as the labels `y` if `mask_with_labels` is `True`, or `y_pred` otherwise."""
-
-reconstruction_targets = tf.cond(mask_with_labels,  # condition
-                                 lambda: y,  # if True
-                                 lambda: y_pred,  # if False
-                                 name="reconstruction_targets")
-
-reconstruction_mask = tf.one_hot(reconstruction_targets,
-                                 depth=caps2_n_caps,
-                                 name="reconstruction_mask")
-
-reconstruction_mask_reshaped = tf.reshape(
-    reconstruction_mask, [-1, 1, caps2_n_caps, 1, 1],
-    name="reconstruction_mask_reshaped")
-
-caps2_output_masked = tf.multiply(
-    caps2_output, reconstruction_mask_reshaped,
-    name="caps2_output_masked")
-
-decoder_input = tf.reshape(caps2_output_masked,
-                           [-1, caps2_n_caps * caps2_n_dims],
-                           name="decoder_input")
-
-"""## Decoder"""
-
-n_output = image_size1 * image_size2 * num_image_channel
-
-with tf.name_scope("decoder"):
-    hidden1 = tf.layers.dense(decoder_input, n_hidden1,
-                              activation=tf.nn.relu,
-                              name="hidden1")
-    hidden2 = tf.layers.dense(hidden1, n_hidden2,
-                              activation=tf.nn.relu,
-                              name="hidden2")
-    decoder_output = tf.layers.dense(hidden2, n_output,
-                                     activation=tf.nn.sigmoid,
-                                     name="decoder_output")
-
-"""## Reconstruction Loss"""
-
-X_flat = tf.reshape(X, [-1, n_output], name="X_flat")
-squared_difference = tf.square(X_flat - decoder_output,
-                               name="squared_difference")
-reconstruction_loss = tf.reduce_mean(squared_difference,
-                                     name="reconstruction_loss")
-
 """## Final Loss"""
 
-loss = tf.add(margin_loss, alpha * reconstruction_loss, name="loss")
+regularizer = tf.nn.l2_loss(W)
+alpha_ = 0.01
+sigma_ = 0.1
+beta = alpha_*(0.36 + 0.04 *lambda_*(num_class-1))/(np.sqrt(caps1_n_caps*caps2_n_caps*caps1_n_dims*caps2_n_dims*sigma_))
+# beta = 0.000001
+loss = tf.add(margin_loss, 2*beta * regularizer, name="loss")
+
 
 """# Final Touches
 

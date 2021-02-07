@@ -1,3 +1,4 @@
+import datetime
 import pickle
 
 import matplotlib.pyplot as plt
@@ -11,20 +12,22 @@ import utilities.params as par
 import utilities.loadDataset as DS
 
 """# Reproducibility"""
+
 tf.reset_default_graph()
+
 np.random.seed(101)
 tf.set_random_seed(101)
 
 restore_checkpoint = True
-dsname = 'Cedar'
+# dsname = UTSig  / mnist / cifar10 / cedar /MCYT75 / SVHN /c-cube
+dsname = 'SVHN'
 
 """# Params"""
 num_class, image_size1, image_size2, num_image_channel, \
 checkpoint_path, alpha, n_epochs, m_plus, m_minus, lambda_, \
 init_sigma, caps1_n_dims, caps2_n_dims, caps1_n_maps, \
-primary_cap_size1, primary_cap_size2, n_hidden1, n_hidden2 \
-    = par.getParamCaps(dsname)
-
+primary_cap_size1, primary_cap_size2, num_cluster_per_class \
+    = par.getParamCaps_Competitve(dsname)
 
 caps1_n_caps = caps1_n_maps * primary_cap_size1 * primary_cap_size2  # 1152 primary capsules for mnist
 ksize1 = (image_size1 - (primary_cap_size1) * 2 + 2) / 2
@@ -33,7 +36,7 @@ ksize2 = (image_size2 - (primary_cap_size2) * 2 + 2) / 2
 ksize1 = int(ksize1)
 ksize2 = int(ksize2)
 
-caps2_n_caps = num_class
+caps2_n_caps = num_class * num_cluster_per_class
 
 """# Load Dataset"""
 Train, Train_label, Test, Test_label = DS.loadDataset(dsname)
@@ -41,6 +44,8 @@ Train, Train_label, Test, Test_label = DS.loadDataset(dsname)
 """# Input Images"""
 
 X = tf.placeholder(shape=[None, image_size1, image_size2, num_image_channel], dtype=tf.float32, name="X")
+# plt.imshow(Test[200].reshape(image_size1,image_size2),cmap='gray')
+# plt.show()
 
 """# Primary Capsules"""
 
@@ -75,7 +80,6 @@ def squash(s, axis=-1, epsilon=1e-7, name=None):
         squash_factor = squared_norm / (1. + squared_norm)
         unit_vector = s / safe_norm
         return squash_factor * unit_vector
-
 
 caps1_output = squash(caps1_raw, name="caps1_output")
 
@@ -112,7 +116,7 @@ raw_weights = tf.zeros([batch_size, caps1_n_caps, caps2_n_caps, 1, 1],
 
 """### Round 1"""
 
-routing_weights = tf.nn.softmax(raw_weights, dim=2, name="routing_weights")
+routing_weights = tf.nn.softmax(raw_weights, axis=2, name="routing_weights")
 
 weighted_predictions = tf.multiply(routing_weights, caps2_predicted,
                                    name="weighted_predictions")
@@ -151,19 +155,25 @@ caps2_output = caps2_output_round_2
 
 """# Estimated Class Probabilities (Length)"""
 
-
 def safe_norm(s, axis=-1, epsilon=1e-7, keep_dims=False, name=None):
     with tf.name_scope(name, default_name="safe_norm"):
         squared_norm = tf.reduce_sum(tf.square(s), axis=axis,
                                      keep_dims=keep_dims)
         return tf.sqrt(squared_norm + epsilon)
 
-
 y_proba = safe_norm(caps2_output, axis=-2, name="y_proba")
 
-y_proba_argmax = tf.argmax(y_proba, axis=2, name="y_proba")
+# @saeid
+y_proba_reshape = tf.reshape(y_proba,[-1, num_cluster_per_class , num_class , 1])
+# y_proba_smax = tf.nn.softmax(y_proba_reshape,axis = 1,)
+# y_proba_smax_max = tf.reduce_max(y_proba_smax,axis = 1)
+y_proba_smax_max = tf.reduce_max(y_proba_reshape,axis = 1)
+y_proba_ver2 = tf.expand_dims(y_proba_smax_max,axis = 1)
 
-y_pred = tf.squeeze(y_proba_argmax, axis=[1, 2], name="y_pred")
+# @saeid
+y_proba_argmax = tf.argmax(y_proba_ver2, axis=2, name="y_proba_argmax")
+
+y_pred = tf.squeeze(y_proba_argmax, axis=[1,2], name="y_pred")
 
 """# Labels"""
 
@@ -171,17 +181,25 @@ y = tf.placeholder(shape=[None], dtype=tf.int64, name="y")
 
 """# Margin loss"""
 
-T = tf.one_hot(y, depth=caps2_n_caps, name="T")
+T = tf.one_hot(y, depth=num_class, name="T")
 
 caps2_output_norm = safe_norm(caps2_output, axis=-2, keep_dims=True,
                               name="caps2_output_norm")
+# @ saeid code
+caps2_output_norm_reshape = tf.reshape(caps2_output_norm,[-1, num_cluster_per_class , num_class ,1, 1])
+# caps2_output_norm_smax = tf.nn.softmax(caps2_output_norm_reshape,axis = 1,)
+# caps2_output_norm_smax_max = tf.reduce_max(caps2_output_norm_smax,axis = 1)
+caps2_output_norm_smax_max = tf.reduce_max(caps2_output_norm_reshape,axis = 1)
+caps2_output_norm_ver2 = tf.expand_dims(caps2_output_norm_smax_max,axis = 1)
 
-present_error_raw = tf.square(tf.maximum(0., m_plus - caps2_output_norm),
+# @saeid
+present_error_raw = tf.square(tf.maximum(0., m_plus - caps2_output_norm_ver2),
                               name="present_error_raw")
 present_error = tf.reshape(present_error_raw, shape=(-1, num_class),
                            name="present_error")
 
-absent_error_raw = tf.square(tf.maximum(0., caps2_output_norm - m_minus),
+# @saeid
+absent_error_raw = tf.square(tf.maximum(0., caps2_output_norm_ver2 - m_minus),
                              name="absent_error_raw")
 absent_error = tf.reshape(absent_error_raw, shape=(-1, num_class),
                           name="absent_error")
@@ -191,63 +209,17 @@ L = tf.add(T * present_error, lambda_ * (1.0 - T) * absent_error,
 
 margin_loss = tf.reduce_mean(tf.reduce_sum(L, axis=1), name="margin_loss")
 
-"""# Reconstruction
-
-## Mask
-"""
-
-mask_with_labels = tf.placeholder_with_default(False, shape=(),
-                                               name="mask_with_labels")
-
-"""Now let's use `tf.cond()` to define the reconstruction targets as the labels `y` if `mask_with_labels` is `True`, or `y_pred` otherwise."""
-
-reconstruction_targets = tf.cond(mask_with_labels,  # condition
-                                 lambda: y,  # if True
-                                 lambda: y_pred,  # if False
-                                 name="reconstruction_targets")
-
-reconstruction_mask = tf.one_hot(reconstruction_targets,
-                                 depth=caps2_n_caps,
-                                 name="reconstruction_mask")
-
-reconstruction_mask_reshaped = tf.reshape(
-    reconstruction_mask, [-1, 1, caps2_n_caps, 1, 1],
-    name="reconstruction_mask_reshaped")
-
-caps2_output_masked = tf.multiply(
-    caps2_output, reconstruction_mask_reshaped,
-    name="caps2_output_masked")
-
-decoder_input = tf.reshape(caps2_output_masked,
-                           [-1, caps2_n_caps * caps2_n_dims],
-                           name="decoder_input")
-
-"""## Decoder"""
-
-n_output = image_size1 * image_size2 * num_image_channel
-
-with tf.name_scope("decoder"):
-    hidden1 = tf.layers.dense(decoder_input, n_hidden1,
-                              activation=tf.nn.relu,
-                              name="hidden1")
-    hidden2 = tf.layers.dense(hidden1, n_hidden2,
-                              activation=tf.nn.relu,
-                              name="hidden2")
-    decoder_output = tf.layers.dense(hidden2, n_output,
-                                     activation=tf.nn.sigmoid,
-                                     name="decoder_output")
-
-"""## Reconstruction Loss"""
-
-X_flat = tf.reshape(X, [-1, n_output], name="X_flat")
-squared_difference = tf.square(X_flat - decoder_output,
-                               name="squared_difference")
-reconstruction_loss = tf.reduce_mean(squared_difference,
-                                     name="reconstruction_loss")
-
 """## Final Loss"""
 
-loss = tf.add(margin_loss, alpha * reconstruction_loss, name="loss")
+# loss = tf.add(margin_loss, alpha * reconstruction_loss, name="loss")
+regularizer = tf.nn.l2_loss(W)
+alpha_ = 0.01
+sigma_ = 0.1
+beta = alpha_*(0.36 + 0.04 *lambda_*(num_class-1))/(np.sqrt(caps1_n_caps*caps2_n_caps*caps1_n_dims*caps2_n_dims*sigma_))
+# beta = 0.000001
+loss = tf.add(margin_loss, 2*beta * regularizer, name="loss")
+# the above 2 is because of that l2_loss computes sum(t**2) / 2
+print(beta)
 
 """# Final Touches
 
@@ -284,8 +256,8 @@ def getNextBatchTest(batch_size):
 
 """# Training"""
 
-batch_size = par.getBatchSize(dsname)
-n_iterations_per_epoch = len(Train_label) // batch_size
+batchSize = par.getBatchSize(dsname)
+n_iterations_per_epoch = len(Train_label) // batchSize
 n_iterations_validation = len(Test_label)
 
 best_loss_val = np.infty
@@ -308,13 +280,12 @@ with tf.Session() as sess:
     for epoch in range(start_epoch, n_epochs):
         startTime = time.time()
         for iteration in range(1, n_iterations_per_epoch + 1):
-            X_batch, y_batch = getNextBatchTrain(batch_size)
+            X_batch, y_batch = getNextBatchTrain(batchSize)
             # Run the training operation and measure the loss:
             _, loss_train = sess.run(
                 [training_op, loss],
                 feed_dict={X: X_batch.reshape([-1, image_size1, image_size2, num_image_channel]),
-                           y: y_batch,
-                           mask_with_labels: True})
+                           y: y_batch})
             print("\rIteration: {}/{} ({:.1f}%)  Loss: {:.5f}".format(
                 iteration, n_iterations_per_epoch,
                 iteration * 100 / n_iterations_per_epoch,
@@ -327,9 +298,8 @@ with tf.Session() as sess:
         time_per_epochs.append(end_time - startTime)
         print('\nElapsed: %.1f' % (end_time - startTime))
 
-        remainHour = (n_epochs - epoch) * (end_time - startTime) / 3600
-        print('\nEstimated remaining time: %.1f hours' % remainHour)
-
+        remainHour = (n_epochs-epoch) * (end_time - startTime)/3600
+        print('Estimated remaining time: %.1f hours' % remainHour)
         # At the end of each epoch,
         # measure the validation loss and accuracy:
         loss_vals = []
@@ -353,7 +323,7 @@ with tf.Session() as sess:
         print("\rEpoch: {}  Test accuracy: {:.4f}%  Loss: {:.6f}{}".format(
             epoch + 1, acc_val * 100, loss_val,
             " (improved)" if loss_val < best_loss_val else ""))
-
+        print("\n")
         acc_plot.append(acc_val)
         loss_val_plot.append(loss_val)
 
@@ -377,4 +347,3 @@ plt.show()
 
 plt.plot(loss_val_plot)
 plt.show()
-
