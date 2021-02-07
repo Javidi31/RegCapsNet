@@ -23,10 +23,13 @@ This code loads the best model from folder "ResNetModels" (in step 1)
 and then extracts train and test features in a specific layer number. 
 Features will be saved in the folder "ResNetFeatures"
 
-3- Run "[RegCapsNetResNet.py]()" aiming signatures classification. This 
-file used features of step 2 (that saved in folder "ResNetFeatures") 
+3- Run "[RegResCapsNet.py]()" aiming signatures classification. This 
+file used features of step 2 (which are saved in folder "ResNetFeatures") 
 as input data.
 **************************************************************************************************************************************************
+For more information about loading dataset or setting the parameters, please refer to utilities folder.
+**************************************************************************************************************************************************
+
 
 Good luck
 
