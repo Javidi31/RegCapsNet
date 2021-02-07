@@ -36,7 +36,7 @@ from PIL import Image
 Train = np.zeros( shape=(img_no,image_size1,image_size2,img_channel) )
   for i in range(0,img_no):
     path = '/ResNetFeatures/'+dsname+'/'
-    path = path +  str(i)+ 'OutTr10Cedar_lay31.pckl'  
+    path = path +  str(i)+ 'OutTr6Cedar_lay31.pckl'  
     
     with open(path, 'rb') as f:
       Train[i,:,:,:] = pickle.load(f)
@@ -45,7 +45,7 @@ img_no = class_no*img_per_class_test
 Test = np.zeros( shape=(img_no,image_size1,image_size2,img_channel) )
   for i in range(0,img_no):
     path = '/ResNetFeatures/'+dsname+'/'
-    path = path + str(i) + 'OutTs14Cedar_lay31.pckl'
+    path = path + str(i) + 'OutTs18Cedar_lay31.pckl'
     
     with open(path, 'rb') as f:
       Test[i,:,:,:] = pickle.load(f)
@@ -74,8 +74,6 @@ ksize2 = int(ksize2)
 
 caps2_n_caps = num_class
 
-"""# Load Dataset"""
-Train, Train_label, Test, Test_label = DS.loadDataset(dsname)
 
 """# Input Images"""
 
