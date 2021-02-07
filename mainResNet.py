@@ -49,7 +49,7 @@ img_rows, img_cols = 200, 200  #######
 img_channels     = 1           #######
 num_classes      = 55          ####### 
 VALIDATION_SPLIT = 0.2         #######
-
+VERBOSE          = 1
 
 """# Load Dataset"""
 X_train, y_train, X_test, y_test = DS.loadDataset()
@@ -76,4 +76,4 @@ history = model.fit(X_train, Y_train,
           shuffle=True,
           callbacks=[lr_reducer, early_stopper, csv_logger,checkpoint])
           
-score = model.evaluate(X_test, Y_test, verbose=0)
+score   = model.evaluate(X_test, Y_test, verbose=0)
