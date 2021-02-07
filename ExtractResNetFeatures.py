@@ -61,7 +61,7 @@ for sampleNo in range(0,maxSampleNo):
     layer_activation = activations[number]
     out=layer_activation[0, :, :, :]
     ###save Train Features as pckl file
-    f = open(str(sampleNo)+'Feat_Tr6_Cedar_lay31.pckl', 'wb')#######    
+    f = open('.\\ResNetFeatures\\'+str(sampleNo)+'OutTr6Cedar_lay31.pckl', 'wb')#######    
     pickle.dump( out, f)
     f.close()
 
@@ -76,6 +76,6 @@ for sampleNo in range(0,maxSampleNo):
     layer_activation = activations[number]
     out=layer_activation[0, :, :, :]
     ###save Test Features as pckl file
-    f = open(str(sampleNo)+'Feat_Te18_Cedar_lay31.pckl', 'wb')#######
+    f = open('.\\ResNetFeatures\\'+ str(sampleNo)+'OutTs18Cedar_lay31.pckl', 'wb')#######
     pickle.dump( out, f)
     f.close()
