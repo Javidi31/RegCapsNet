@@ -1,4 +1,4 @@
-# RegCapsNet with ResNet-Keras/Tensorflow
+# RegCapsNet with ResNet with Keras/Tensorflow
 
 This is a [Keras](https://keras.io/) implementation of Regularized CapsNet with ResNet.
 
