@@ -29,7 +29,9 @@ as input data.
 
 **************************************************************************************************************************************************
 Dataset:
-Cedar dataset is Available at(http://www.cedar.buffalo.edu/NIJ/data/signatures.rar).
+
+1- Cedar dataset is Available at (http://www.cedar.buffalo.edu/NIJ/data/signatures.rar) (a number of samples of original and pre-processed dataset are available in the Datasets folder).
+2- To prepare dataset, run "[Preparing.m](https://github.com/Javidi31/RegCapsNet/blob/main/Preparing.m) 
 **************************************************************************************************************************************************
 For more information about loading dataset or setting the parameters, please refer to utilities folder.
 **************************************************************************************************************************************************
