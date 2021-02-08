@@ -26,6 +26,10 @@ Features will be saved in the folder "ResNetFeatures"
 3- Run "[RegResCapsNet.py](https://github.com/Javidi31/RegCapsNet/blob/main/RegResCapsNet.py)" aiming signatures classification. This 
 file used features of step 2 (which are saved in folder "ResNetFeatures") 
 as input data.
+
+**************************************************************************************************************************************************
+Dataset:
+Cedar dataset is Available at(http://www.cedar.buffalo.edu/NIJ/data/signatures.rar).
 **************************************************************************************************************************************************
 For more information about loading dataset or setting the parameters, please refer to utilities folder.
 **************************************************************************************************************************************************
