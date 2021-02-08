@@ -28,7 +28,7 @@ file used features of step 2 (which are saved in folder "ResNetFeatures")
 as input data.
 
 **************************************************************************************************************************************************
-Dataset:
+# Dataset
 
 1- Cedar dataset is Available at (http://www.cedar.buffalo.edu/NIJ/data/signatures.rar) (a number of samples of original and pre-processed dataset are available in the Datasets folder).
 
