@@ -17,15 +17,17 @@ Run "[RegCapsNet.py](https://github.com/Javidi31/RegCapsNet/blob/main/RegCapsNet
 **************************************************************************************************************************************************
 To run our "RegCapsNet Conjugate with ResNet" follow the below steps:
 
-1- Run "[mainResNet.py](https://github.com/Javidi31/RegCapsNet/blob/main/mainResNet.py)" for the training model using ResNet-18.
+1- To prepare the dataset, download it from the following and then run "[Preparing.m](https://github.com/Javidi31/RegCapsNet/blob/main/Preparing.m)" 
+
+2- Run "[mainResNet.py](https://github.com/Javidi31/RegCapsNet/blob/main/mainResNet.py)" for the training model using ResNet-18.
 The best model will be saved in the folder "ResNetModels"
 
-2- Run "[ExatrctResNetFeatures.py](https://github.com/Javidi31/RegCapsNet/blob/main/ExtractResNetFeatures.py)" for extracting ResNet features.
+3- Run "[ExatrctResNetFeatures.py](https://github.com/Javidi31/RegCapsNet/blob/main/ExtractResNetFeatures.py)" for extracting ResNet features.
 This code loads the best model from folder "ResNetModels" (in step 1) 
 and then extracts train and test features in a specific layer number. 
 Features will be saved in the folder "ResNetFeatures"
 
-3- Run "[RegResCapsNet.py](https://github.com/Javidi31/RegCapsNet/blob/main/RegResCapsNet.py)" aiming signatures classification. This 
+4- Run "[RegResCapsNet.py](https://github.com/Javidi31/RegCapsNet/blob/main/RegResCapsNet.py)" aiming signatures classification. This 
 file used features of step 2 (which are saved in folder "ResNetFeatures") 
 as input data.
 
@@ -34,7 +36,7 @@ as input data.
 
 1- Cedar dataset is Available at (http://www.cedar.buffalo.edu/NIJ/data/signatures.rar) (a number of samples of original and pre-processed dataset are available in the Datasets folder).
 
-2- To prepare dataset, run "[Preparing.m](https://github.com/Javidi31/RegCapsNet/blob/main/Preparing.m)" 
+
 **************************************************************************************************************************************************
 For more information about loading dataset or setting the parameters, please refer to utilities folder.
 **************************************************************************************************************************************************
