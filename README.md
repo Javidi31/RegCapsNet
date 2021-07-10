@@ -53,3 +53,10 @@ Mahdi Jampour, Saeid Abbaasi, Malihe Javidi,
 CapsNet Regularization and its Conjugation with ResNet for Signature Identification, 
 
 Pattern Recognition, 2021, 107851, https://doi.org/10.1016/j.patcog.2021.107851.
+
+
+
+# Paper is open access from the following link till August 29, 2021:
+
+https://authors.elsevier.com/a/1dNsQ77nKcuF4
+
